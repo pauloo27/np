@@ -7,13 +7,10 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type TmuxConfig struct {
-	WindowCount int `toml:"window_count"`
-}
-
 type Config struct {
-	Projects map[string]string `toml:"projects"`
-	Tmux     TmuxConfig        `toml:"tmux"`
+	Tmux struct {
+		WindowCount int `toml:"window_count"`
+	} `toml:"tmux"`
 }
 
 func loadConfig() (*Config, error) {

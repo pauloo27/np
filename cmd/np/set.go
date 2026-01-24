@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
 )
 
@@ -34,36 +33,15 @@ var setCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		homeDir, err := os.UserHomeDir()
+		workspace, err := loadWorkspace()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error getting home directory: %v\n", err)
-			os.Exit(1)
+			workspace = &Workspace{Projects: make(map[string]string)}
 		}
 
-		configPath := filepath.Join(homeDir, nixDevProfilesDir, "config.toml")
+		workspace.Projects[cwd] = profile
 
-		config, err := loadConfig()
-		if err != nil {
-			config = &Config{Projects: make(map[string]string)}
-		}
-
-		config.Projects[cwd] = profile
-
-		configDir := filepath.Dir(configPath)
-		if err := os.MkdirAll(configDir, 0750); err != nil {
-			fmt.Fprintf(os.Stderr, "error creating config directory: %v\n", err)
-			os.Exit(1)
-		}
-
-		file, err := os.Create(configPath)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error creating config file: %v\n", err)
-			os.Exit(1)
-		}
-		defer file.Close()
-
-		if err := toml.NewEncoder(file).Encode(config); err != nil {
-			fmt.Fprintf(os.Stderr, "error writing config: %v\n", err)
+		if err := saveWorkspace(workspace); err != nil {
+			fmt.Fprintf(os.Stderr, "error saving workspace: %v\n", err)
 			os.Exit(1)
 		}
 

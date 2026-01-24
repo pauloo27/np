@@ -28,18 +28,18 @@ func determineProfileName() (string, bool) {
 		return "", false
 	}
 
-	config, err := loadConfig()
+	workspace, err := loadWorkspace()
 	if err != nil {
 		return "", false
 	}
 
-	if profile, exists := config.Projects[cwd]; exists {
+	if profile, exists := workspace.Projects[cwd]; exists {
 		return profile, true
 	}
 
 	absPath, err := filepath.EvalSymlinks(cwd)
 	if err == nil {
-		if profile, exists := config.Projects[absPath]; exists {
+		if profile, exists := workspace.Projects[absPath]; exists {
 			return profile, true
 		}
 	}
