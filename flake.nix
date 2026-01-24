@@ -7,7 +7,51 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    {
+      homeManagerModules.default = { config, lib, pkgs, ... }:
+        with lib;
+        let
+          cfg = config.programs.np;
+        in
+        {
+          options.programs.np = {
+            enable = mkEnableOption "np - Nix project development environment manager";
+
+            package = mkOption {
+              type = types.package;
+              default = self.packages.${pkgs.system}.default;
+              defaultText = literalExpression "pkgs.np";
+              description = "The np package to use.";
+            };
+
+            profilesPath = mkOption {
+              type = types.str;
+              default = "${config.xdg.configHome}/nix-conf/dev";
+              defaultText = literalExpression ''"''${config.xdg.configHome}/nix-conf/dev"'';
+              description = "Path to the directory containing nix development profiles.";
+            };
+
+            tmux = {
+              windowCount = mkOption {
+                type = types.int;
+                default = 1;
+                description = "Default number of tmux windows to create.";
+              };
+            };
+          };
+
+          config = mkIf cfg.enable {
+            home.packages = [ cfg.package ];
+
+            xdg.configFile."np/config.toml".text = generators.toTOML {} {
+              profiles_path = cfg.profilesPath;
+              tmux = {
+                window_count = cfg.tmux.windowCount;
+              };
+            };
+          };
+        };
+    } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
