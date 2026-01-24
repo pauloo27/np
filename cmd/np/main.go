@@ -6,7 +6,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const nixDevProfilesDir = ".config/nix-conf/dev"
+var (
+	// global state, fuck it, we ball
+	config    *Config
+	workspace *Workspace
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "np",
@@ -21,6 +25,16 @@ func init() {
 }
 
 func main() {
+	config, _ = loadConfig()
+	if config == nil {
+		config = &Config{}
+	}
+
+	workspace, _ = loadWorkspace()
+	if workspace == nil {
+		workspace = &Workspace{Projects: make(map[string]string)}
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

@@ -10,37 +10,19 @@ import (
 )
 
 var runCmd = &cobra.Command{
-	Use:   "run [profile]",
-	Short: "Run nix develop shell",
-	Args:  cobra.MaximumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		profilesPath := filepath.Join(homeDir, nixDevProfilesDir)
-		profiles, err := getAvailableProfiles(profilesPath)
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		profiles = append([]string{"local"}, profiles...)
-		return profiles, cobra.ShellCompDirectiveNoFileComp
-	},
+	Use:               "run [profile]",
+	Short:             "Run nix develop shell",
+	Args:              cobra.MaximumNArgs(1),
+	ValidArgsFunction: profileCompletion(true),
 	Run: func(cmd *cobra.Command, args []string) {
 		shell := os.Getenv("SHELL")
 		if shell == "" {
 			shell = "/bin/sh"
 		}
 
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error getting home directory: %v\n", err)
-			os.Exit(1)
-		}
+		profilesPath := getProfilesPath()
 
-		nixDevProfilesPath := filepath.Join(homeDir, nixDevProfilesDir)
-
-		profile, useLocalFlake, ok := resolveProfile(args, nixDevProfilesPath)
+		profile, useLocalFlake, ok := resolveProfile(args, profilesPath)
 		if !ok {
 			os.Exit(1)
 		}
@@ -52,11 +34,11 @@ var runCmd = &cobra.Command{
 			nixArgs = []string{"nix", "develop", "-c", shell}
 			env = append(os.Environ(), "USING_NIX_DEV=local")
 		} else {
-			profilePath := filepath.Join(nixDevProfilesPath, profile)
+			profilePath := filepath.Join(profilesPath, profile)
 
 			if _, err := os.Stat(profilePath); os.IsNotExist(err) {
 				fmt.Fprintf(os.Stderr, "profile '%s' not found\n", profile)
-				listAvailableProfiles(nixDevProfilesPath)
+				listAvailableProfiles(profilesPath)
 				os.Exit(1)
 			}
 

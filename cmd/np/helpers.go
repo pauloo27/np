@@ -5,7 +5,40 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/spf13/cobra"
 )
+
+func getProfilesPath() string {
+	if config.ProfilesPath != "" {
+		return config.ProfilesPath
+	}
+
+	configDir := os.Getenv("XDG_CONFIG_HOME")
+	if configDir == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return ""
+		}
+		configDir = filepath.Join(homeDir, ".config")
+	}
+
+	return filepath.Join(configDir, "nix-conf/dev")
+}
+
+func profileCompletion(includeLocal bool) func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		profilesPath := getProfilesPath()
+		profiles, err := getAvailableProfiles(profilesPath)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		if includeLocal {
+			profiles = append([]string{"local"}, profiles...)
+		}
+		return profiles, cobra.ShellCompDirectiveNoFileComp
+	}
+}
 
 func listAvailableProfiles(profilesPath string) {
 	availableProfiles, err := getAvailableProfiles(profilesPath)
@@ -24,11 +57,6 @@ func determineProfileName() (string, bool) {
 	}
 
 	cwd, err := os.Getwd()
-	if err != nil {
-		return "", false
-	}
-
-	workspace, err := loadWorkspace()
 	if err != nil {
 		return "", false
 	}

@@ -11,13 +11,23 @@ type Workspace struct {
 	Projects map[string]string `toml:"projects"`
 }
 
-func loadWorkspace() (*Workspace, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
+func getWorkspacePath() string {
+	stateDir := os.Getenv("XDG_STATE_HOME")
+	if stateDir == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return ""
+		}
+		stateDir = filepath.Join(homeDir, ".local", "state")
 	}
+	return filepath.Join(stateDir, "np", "workspace.toml")
+}
 
-	workspacePath := filepath.Join(homeDir, ".local", "state", "np", "workspace.toml")
+func loadWorkspace() (*Workspace, error) {
+	workspacePath := getWorkspacePath()
+	if workspacePath == "" {
+		return nil, os.ErrNotExist
+	}
 
 	var workspace Workspace
 	if _, err := toml.DecodeFile(workspacePath, &workspace); err != nil {
@@ -28,12 +38,11 @@ func loadWorkspace() (*Workspace, error) {
 }
 
 func saveWorkspace(workspace *Workspace) error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
+	workspacePath := getWorkspacePath()
+	if workspacePath == "" {
+		return os.ErrInvalid
 	}
 
-	workspacePath := filepath.Join(homeDir, ".local", "state", "np", "workspace.toml")
 	workspaceDir := filepath.Dir(workspacePath)
 
 	if err := os.MkdirAll(workspaceDir, 0750); err != nil {
