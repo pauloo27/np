@@ -23,6 +23,7 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
+		profiles = append([]string{"local"}, profiles...)
 		return profiles, cobra.ShellCompDirectiveNoFileComp
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -39,24 +40,9 @@ var runCmd = &cobra.Command{
 
 		nixDevProfilesPath := filepath.Join(homeDir, nixDevProfilesDir)
 
-		var profile string
-		var useLocalFlake bool
-
-		if len(args) > 0 {
-			profile = args[0]
-		} else {
-			detectedProfile, found := determineProfileName()
-			if found {
-				profile = detectedProfile
-				if profile == "local" {
-					useLocalFlake = true
-				}
-			} else {
-				fmt.Fprintf(os.Stderr, "no profile specified and could not determine one automatically\n")
-				fmt.Fprintf(os.Stderr, "use 'np set <profile>' to set a profile for this directory\n")
-				listAvailableProfiles(nixDevProfilesPath)
-				os.Exit(1)
-			}
+		profile, useLocalFlake, ok := resolveProfile(args, nixDevProfilesPath)
+		if !ok {
+			os.Exit(1)
 		}
 
 		var nixArgs []string
