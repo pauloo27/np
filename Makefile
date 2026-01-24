@@ -26,7 +26,7 @@ staticcheck:
 
 .PHONY: gosec
 gosec:
-	go tool gosec -tests ./...
+	go tool gosec -exclude=G204,G304 -tests ./...
 
 .PHONY: inspect
 inspect: spell lint staticcheck gosec

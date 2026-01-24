@@ -50,7 +50,7 @@ var setCmd = &cobra.Command{
 		config.Projects[cwd] = profile
 
 		configDir := filepath.Dir(configPath)
-		if err := os.MkdirAll(configDir, 0755); err != nil {
+		if err := os.MkdirAll(configDir, 0750); err != nil {
 			fmt.Fprintf(os.Stderr, "error creating config directory: %v\n", err)
 			os.Exit(1)
 		}
