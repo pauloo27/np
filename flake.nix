@@ -23,6 +23,15 @@
 
           ldflags = [ "-s" "-w" ];
 
+          nativeBuildInputs = [ pkgs.installShellFiles ];
+
+          postInstall = ''
+            installShellCompletion --cmd np \
+              --bash <($out/bin/np completion bash) \
+              --fish <($out/bin/np completion fish) \
+              --zsh <($out/bin/np completion zsh)
+          '';
+
           meta = with pkgs.lib; {
             description = "Nix project development environment manager";
             homepage = "https://code.db.cafe/pauloo27/np";
