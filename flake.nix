@@ -6,12 +6,24 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs =
     {
-      homeManagerModules.default = { config, lib, pkgs, ... }:
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    {
+      homeManagerModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         with lib;
         let
           cfg = config.programs.np;
+          tomlFormat = pkgs.formats.toml { };
         in
         {
           options.programs.np = {
@@ -43,7 +55,7 @@
           config = mkIf cfg.enable {
             home.packages = [ cfg.package ];
 
-            xdg.configFile."np/config.toml".text = generators.toTOML {} {
+            xdg.configFile."np/config.toml".source = tomlFormat.generate "config.toml" {
               profiles_path = cfg.profilesPath;
               tmux = {
                 window_count = cfg.tmux.windowCount;
@@ -51,7 +63,9 @@
             };
           };
         };
-    } // flake-utils.lib.eachDefaultSystem (system:
+    }
+    // flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
@@ -65,7 +79,10 @@
 
           subPackages = [ "cmd/np" ];
 
-          ldflags = [ "-s" "-w" ];
+          ldflags = [
+            "-s"
+            "-w"
+          ];
 
           nativeBuildInputs = [ pkgs.installShellFiles ];
 
@@ -88,6 +105,7 @@
           buildInputs = with pkgs; [
             go
             gopls
+            nil
           ];
 
           shellHook = ''
