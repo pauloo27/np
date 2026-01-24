@@ -16,6 +16,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(setCmd)
+	rootCmd.AddCommand(devCmd)
 }
 
 func main() {
