@@ -3,53 +3,26 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"syscall"
 
 	"github.com/spf13/cobra"
 )
 
 var runCmd = &cobra.Command{
-	Use:               "run [profile]",
-	Short:             "Run nix develop shell",
-	Args:              cobra.MaximumNArgs(1),
-	ValidArgsFunction: profileCompletion(true),
+	Use:   "run [package] [-- args...]",
+	Short: "Run a package from nixpkgs",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		shell := getShell()
+		pkg := args[0]
 
-		profilesPath := getProfilesPath()
+		nixArgs := []string{"nix", "run", fmt.Sprintf("nixpkgs#%s", pkg)}
 
-		profile, useLocalFlake, ok := resolveProfile(args, profilesPath)
-		if !ok {
-			os.Exit(1)
+		if len(args) > 1 {
+			nixArgs = append(nixArgs, "--")
+			nixArgs = append(nixArgs, args[1:]...)
 		}
 
-		var nixArgs []string
-		var env []string
-
-		if useLocalFlake {
-			nixArgs = []string{"nix", "develop", "-c", shell}
-			env = append(os.Environ(), "USING_NIX_DEV=local")
-		} else {
-			profilePath := filepath.Join(profilesPath, profile)
-
-			if _, err := os.Stat(profilePath); os.IsNotExist(err) {
-				fmt.Fprintf(os.Stderr, "profile '%s' not found\n", profile)
-				listAvailableProfiles(profilesPath)
-				os.Exit(1)
-			}
-
-			nixArgs = []string{"nix", "develop", profilePath, "-c", shell}
-			env = append(os.Environ(), fmt.Sprintf("USING_NIX_DEV=%s", profile))
-		}
-
-		nixPath, err := getNixPath()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-			os.Exit(1)
-		}
-
-		if err := syscall.Exec(nixPath, nixArgs, env); err != nil {
+		if err := syscall.Exec("/usr/bin/nix", nixArgs, os.Environ()); err != nil {
 			panic(err)
 		}
 	},
