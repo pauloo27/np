@@ -15,6 +15,27 @@ var setCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		profile := args[0]
 
+		profilesPath := getProfilesPath()
+		availableProfiles, err := getAvailableProfiles(profilesPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error reading profiles: %v\n", err)
+			os.Exit(1)
+		}
+
+		profileExists := false
+		for _, p := range availableProfiles {
+			if p == profile {
+				profileExists = true
+				break
+			}
+		}
+
+		if !profileExists {
+			fmt.Fprintf(os.Stderr, "profile '%s' does not exist\n", profile)
+			listAvailableProfiles(profilesPath)
+			os.Exit(1)
+		}
+
 		cwd, err := os.Getwd()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error getting current directory: %v\n", err)
