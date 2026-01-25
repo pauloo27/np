@@ -15,10 +15,7 @@ var runCmd = &cobra.Command{
 	Args:              cobra.MaximumNArgs(1),
 	ValidArgsFunction: profileCompletion(true),
 	Run: func(cmd *cobra.Command, args []string) {
-		shell := os.Getenv("SHELL")
-		if shell == "" {
-			shell = "/bin/sh"
-		}
+		shell := getShell()
 
 		profilesPath := getProfilesPath()
 
@@ -46,7 +43,13 @@ var runCmd = &cobra.Command{
 			env = append(os.Environ(), fmt.Sprintf("USING_NIX_DEV=%s", profile))
 		}
 
-		if err := syscall.Exec("/usr/bin/nix", nixArgs, env); err != nil {
+		nixPath, err := getNixPath()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(1)
+		}
+
+		if err := syscall.Exec(nixPath, nixArgs, env); err != nil {
 			panic(err)
 		}
 	},

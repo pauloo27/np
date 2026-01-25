@@ -98,6 +98,22 @@ func runCommand(args ...string) error {
 	return cmd.Run()
 }
 
+func getNixPath() (string, error) {
+	nixPath, err := exec.LookPath("nix")
+	if err != nil {
+		return "", fmt.Errorf("nix binary not found in PATH: %w", err)
+	}
+	return nixPath, nil
+}
+
+func getShell() string {
+	shell := os.Getenv("SHELL")
+	if shell == "" {
+		shell = "/bin/sh"
+	}
+	return shell
+}
+
 func resolveProfile(args []string, nixDevProfilesPath string) (profile string, useLocalFlake bool, ok bool) {
 	if len(args) > 0 {
 		profile = args[0]

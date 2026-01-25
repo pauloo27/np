@@ -34,10 +34,7 @@ var tmuxCmd = &cobra.Command{
 			}
 		}
 
-		shell := os.Getenv("SHELL")
-		if shell == "" {
-			shell = "/bin/sh"
-		}
+		shell := getShell()
 
 		var nixCmd string
 		if useLocalFlake {
