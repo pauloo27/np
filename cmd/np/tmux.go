@@ -34,19 +34,11 @@ var tmuxCmd = &cobra.Command{
 			}
 		}
 
-		shell := getShell()
-
-		var nixCmd string
+		var profileStartCmd string
 		if useLocalFlake {
-			nixCmd = fmt.Sprintf("nix develop -c %s", shell)
+			profileStartCmd = fmt.Sprintf("%s profile local", os.Args[0])
 		} else {
-			profilePath := filepath.Join(profilesPath, profile)
-			if _, err := os.Stat(profilePath); os.IsNotExist(err) {
-				fmt.Fprintf(os.Stderr, "profile '%s' not found\n", profile)
-				listAvailableProfiles(profilesPath)
-				os.Exit(1)
-			}
-			nixCmd = fmt.Sprintf("nix develop %s -c %s", profilePath, shell)
+			profileStartCmd = fmt.Sprintf("%s profile %s", os.Args[0], profile)
 		}
 
 		cwd, _ := os.Getwd()
@@ -62,14 +54,14 @@ var tmuxCmd = &cobra.Command{
 			return
 		}
 
-		tmuxNewSession := []string{"tmux", "new-session", "-d", "-s", sessionName, "-c", cwd, nixCmd}
+		tmuxNewSession := []string{"tmux", "new-session", "-e", "SHOULD_USE_NIX_DEV=" + profile, "-d", "-s", sessionName, "-c", cwd, profileStartCmd}
 		if err := runCommand(tmuxNewSession...); err != nil {
 			fmt.Fprintf(os.Stderr, "error creating tmux session: %v\n", err)
 			os.Exit(1)
 		}
 
 		for i := 1; i < windowCount; i++ {
-			tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd, nixCmd}
+			tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd, profileStartCmd}
 			if err := runCommand(tmuxNewWindow...); err != nil {
 				fmt.Fprintf(os.Stderr, "error creating window %d: %v\n", i+1, err)
 			}
