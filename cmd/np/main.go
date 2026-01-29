@@ -25,6 +25,7 @@ func init() {
 	rootCmd.AddCommand(tmuxCmd)
 	rootCmd.AddCommand(shellCmd)
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(loadCmd)
 }
 
 func main() {
