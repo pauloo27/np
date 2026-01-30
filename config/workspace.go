@@ -4,11 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
+	"github.com/goccy/go-yaml"
 )
 
 type Workspace struct {
-	Projects map[string]string `toml:"projects"`
+	Projects map[string]string `yaml:"projects"`
 }
 
 func getWorkspacePath() string {
@@ -20,7 +20,7 @@ func getWorkspacePath() string {
 		}
 		stateDir = filepath.Join(homeDir, ".local", "state")
 	}
-	return filepath.Join(stateDir, "np", "workspace.toml")
+	return filepath.Join(stateDir, "np", "workspace.yaml")
 }
 
 func LoadWorkspace() (*Workspace, error) {
@@ -29,8 +29,13 @@ func LoadWorkspace() (*Workspace, error) {
 		return nil, os.ErrNotExist
 	}
 
+	data, err := os.ReadFile(workspacePath)
+	if err != nil {
+		return nil, err
+	}
+
 	var workspace Workspace
-	if _, err := toml.DecodeFile(workspacePath, &workspace); err != nil {
+	if err := yaml.Unmarshal(data, &workspace); err != nil {
 		return nil, err
 	}
 
@@ -49,11 +54,10 @@ func SaveWorkspace(workspace *Workspace) error {
 		return err
 	}
 
-	file, err := os.Create(workspacePath)
+	data, err := yaml.Marshal(workspace)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
-	return toml.NewEncoder(file).Encode(workspace)
+	return os.WriteFile(workspacePath, data, 0640)
 }

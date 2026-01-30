@@ -23,7 +23,7 @@
         with lib;
         let
           cfg = config.programs.np;
-          tomlFormat = pkgs.formats.toml { };
+          yamlFormat = pkgs.formats.yaml { };
         in
         {
           options.programs.np = {
@@ -55,7 +55,7 @@
           config = mkIf cfg.enable {
             home.packages = [ cfg.package ];
 
-            xdg.configFile."np/config.toml".source = tomlFormat.generate "config.toml" {
+            xdg.configFile."np/config.yaml".source = yamlFormat.generate "config.yaml" {
               profiles_path = cfg.profilesPath;
               tmux = {
                 window_count = cfg.tmux.windowCount;
@@ -75,7 +75,7 @@
           version = "0.1.0";
           src = ./.;
 
-          vendorHash = "sha256-n/12IYu5NOa7cY6YvsDsBVQwBjzrerHe0tNJlO4Kjlo=";
+          vendorHash = "sha256-U7XW0TjcW/KMcnK8TuO6bMFpuG3n6n/jcTmnq+A1Vr0=";
 
           subPackages = [ "cmd/np" ];
 

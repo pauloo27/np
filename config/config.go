@@ -4,14 +4,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
+	"github.com/goccy/go-yaml"
 )
 
 type Config struct {
-	ProfilesPath string `toml:"profiles_path"`
+	ProfilesPath string `yaml:"profiles_path"`
 	Tmux         struct {
-		WindowCount int `toml:"window_count"`
-	} `toml:"tmux"`
+		WindowCount int `yaml:"window_count"`
+	} `yaml:"tmux"`
 }
 
 func GetConfigPath() string {
@@ -23,7 +23,7 @@ func GetConfigPath() string {
 		}
 		configDir = filepath.Join(homeDir, ".config")
 	}
-	return filepath.Join(configDir, "np", "config.toml")
+	return filepath.Join(configDir, "np", "config.yaml")
 }
 
 func LoadConfig() (*Config, error) {
@@ -32,8 +32,13 @@ func LoadConfig() (*Config, error) {
 		return nil, os.ErrNotExist
 	}
 
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
 	var config Config
-	if _, err := toml.DecodeFile(configPath, &config); err != nil {
+	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}
 
