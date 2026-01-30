@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -14,7 +14,7 @@ type Config struct {
 	} `toml:"tmux"`
 }
 
-func getConfigPath() string {
+func GetConfigPath() string {
 	configDir := os.Getenv("XDG_CONFIG_HOME")
 	if configDir == "" {
 		homeDir, err := os.UserHomeDir()
@@ -26,8 +26,8 @@ func getConfigPath() string {
 	return filepath.Join(configDir, "np", "config.toml")
 }
 
-func loadConfig() (*Config, error) {
-	configPath := getConfigPath()
+func LoadConfig() (*Config, error) {
+	configPath := GetConfigPath()
 	if configPath == "" {
 		return nil, os.ErrNotExist
 	}

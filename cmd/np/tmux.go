@@ -28,7 +28,7 @@ var tmuxCmd = &cobra.Command{
 
 		windowCount := windowCountFlag
 		if windowCount <= 0 {
-			windowCount = config.Tmux.WindowCount
+			windowCount = cfg.Tmux.WindowCount
 			if windowCount <= 0 {
 				windowCount = 1
 			}

@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -23,7 +23,7 @@ func getWorkspacePath() string {
 	return filepath.Join(stateDir, "np", "workspace.toml")
 }
 
-func loadWorkspace() (*Workspace, error) {
+func LoadWorkspace() (*Workspace, error) {
 	workspacePath := getWorkspacePath()
 	if workspacePath == "" {
 		return nil, os.ErrNotExist
@@ -37,7 +37,7 @@ func loadWorkspace() (*Workspace, error) {
 	return &workspace, nil
 }
 
-func saveWorkspace(workspace *Workspace) error {
+func SaveWorkspace(workspace *Workspace) error {
 	workspacePath := getWorkspacePath()
 	if workspacePath == "" {
 		return os.ErrInvalid

@@ -10,8 +10,8 @@ import (
 )
 
 func getProfilesPath() string {
-	if config.ProfilesPath != "" {
-		return config.ProfilesPath
+	if cfg.ProfilesPath != "" {
+		return cfg.ProfilesPath
 	}
 
 	configDir := os.Getenv("XDG_CONFIG_HOME")

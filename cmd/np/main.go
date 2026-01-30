@@ -3,13 +3,14 @@ package main
 import (
 	"os"
 
+	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
 )
 
 var (
 	// global state, fuck it, we ball
-	config    *Config
-	workspace *Workspace
+	cfg       *config.Config
+	workspace *config.Workspace
 )
 
 var rootCmd = &cobra.Command{
@@ -29,14 +30,14 @@ func init() {
 }
 
 func main() {
-	config, _ = loadConfig()
-	if config == nil {
-		config = &Config{}
+	cfg, _ = config.LoadConfig()
+	if cfg == nil {
+		cfg = &config.Config{}
 	}
 
-	workspace, _ = loadWorkspace()
+	workspace, _ = config.LoadWorkspace()
 	if workspace == nil {
-		workspace = &Workspace{Projects: make(map[string]string)}
+		workspace = &config.Workspace{Projects: make(map[string]string)}
 	}
 
 	if err := rootCmd.Execute(); err != nil {
