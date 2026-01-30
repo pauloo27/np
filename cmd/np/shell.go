@@ -24,9 +24,14 @@ var shellCmd = &cobra.Command{
 			nixArgs = append(nixArgs, fmt.Sprintf("nixpkgs#%s", pkg))
 		}
 
+		nixPath, err := getBinPath("nix")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(1)
+		}
 		nixArgs = append(nixArgs, "-c", shell)
 
-		if err := syscall.Exec("/usr/bin/nix", nixArgs, os.Environ()); err != nil {
+		if err := syscall.Exec(nixPath, nixArgs, os.Environ()); err != nil {
 			panic(err)
 		}
 	},

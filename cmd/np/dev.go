@@ -16,7 +16,7 @@ var devCmd = &cobra.Command{
 
 		nixArgs := []string{"nix", "develop", "-c", shell}
 
-		nixPath, err := getNixPath()
+		nixPath, err := getBinPath("nix")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)

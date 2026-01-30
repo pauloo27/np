@@ -98,12 +98,12 @@ func runCommand(args ...string) error {
 	return cmd.Run()
 }
 
-func getNixPath() (string, error) {
-	nixPath, err := exec.LookPath("nix")
+func getBinPath(name string) (string, error) {
+	binPath, err := exec.LookPath(name)
 	if err != nil {
-		return "", fmt.Errorf("nix binary not found in PATH: %w", err)
+		return "", fmt.Errorf("%s binary not found in PATH: %w", name, err)
 	}
-	return nixPath, nil
+	return binPath, nil
 }
 
 func getShell() string {

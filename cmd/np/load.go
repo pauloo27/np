@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -22,8 +24,22 @@ var loadCmd = &cobra.Command{
 			return
 		}
 
-		execArgs := []string{os.Args[0], "profile", shouldUse}
-		if err := syscall.Exec(os.Args[0], execArgs, os.Environ()); err != nil {
+		var npPath string
+		var err error
+
+		// that should match "./np", "/bin/np" etc
+		if strings.Contains(npPath, "/") {
+			npPath = os.Args[0]
+		} else {
+			npPath, err = getBinPath("np")
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+		}
+
+		execArgs := []string{npPath, "profile", shouldUse}
+		if err := syscall.Exec(npPath, execArgs, os.Environ()); err != nil {
 			panic(err)
 		}
 	},

@@ -43,7 +43,7 @@ var profileCmd = &cobra.Command{
 			env = append(os.Environ(), fmt.Sprintf("USING_NIX_DEV=%s", profile))
 		}
 
-		nixPath, err := getNixPath()
+		nixPath, err := getBinPath("nix")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
