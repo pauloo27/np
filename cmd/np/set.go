@@ -5,7 +5,6 @@ import (
 	"os"
 	"slices"
 
-	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
 )
 
@@ -40,7 +39,7 @@ var setCmd = &cobra.Command{
 
 		workspace.Projects[cwd] = profile
 
-		if err := config.SaveWorkspace(workspace); err != nil {
+		if err := workspace.Save(); err != nil {
 			fmt.Fprintf(os.Stderr, "error saving workspace: %v\n", err)
 			os.Exit(1)
 		}

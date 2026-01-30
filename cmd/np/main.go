@@ -35,7 +35,7 @@ func main() {
 		cfg = &config.Config{}
 	}
 
-	workspace, _ = config.LoadWorkspace()
+	workspace, _ = config.LoadWorkspace(cfg)
 	if workspace == nil {
 		workspace = &config.Workspace{Projects: make(map[string]string)}
 	}

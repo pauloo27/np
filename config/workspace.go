@@ -9,9 +9,14 @@ import (
 
 type Workspace struct {
 	Projects map[string]string `yaml:"projects"`
+	path     string            `yaml:"-"` // configured workspace path
 }
 
-func getWorkspacePath() string {
+func (c *Config) GetWorkspacePath() string {
+	if c != nil && c.WorkspacePath != "" {
+		return c.WorkspacePath
+	}
+
 	stateDir := os.Getenv("XDG_STATE_HOME")
 	if stateDir == "" {
 		homeDir, err := os.UserHomeDir()
@@ -23,8 +28,8 @@ func getWorkspacePath() string {
 	return filepath.Join(stateDir, "np", "workspace.yaml")
 }
 
-func LoadWorkspace() (*Workspace, error) {
-	workspacePath := getWorkspacePath()
+func LoadWorkspace(cfg *Config) (*Workspace, error) {
+	workspacePath := cfg.GetWorkspacePath()
 	if workspacePath == "" {
 		return nil, os.ErrNotExist
 	}
@@ -39,25 +44,25 @@ func LoadWorkspace() (*Workspace, error) {
 		return nil, err
 	}
 
+	workspace.path = workspacePath
 	return &workspace, nil
 }
 
-func SaveWorkspace(workspace *Workspace) error {
-	workspacePath := getWorkspacePath()
-	if workspacePath == "" {
+func (w *Workspace) Save() error {
+	if w.path == "" {
 		return os.ErrInvalid
 	}
 
-	workspaceDir := filepath.Dir(workspacePath)
+	workspaceDir := filepath.Dir(w.path)
 
 	if err := os.MkdirAll(workspaceDir, 0750); err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal(workspace)
+	data, err := yaml.Marshal(w)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(workspacePath, data, 0640)
+	return os.WriteFile(w.path, data, 0640)
 }

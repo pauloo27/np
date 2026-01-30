@@ -43,6 +43,12 @@
               description = "Path to the directory containing nix development profiles.";
             };
 
+            workspacePath = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Path to the workspace file. Defaults to XDG_STATE_HOME/np/workspace.yaml if not set.";
+            };
+
             tmux = {
               windowCount = mkOption {
                 type = types.int;
@@ -55,12 +61,15 @@
           config = mkIf cfg.enable {
             home.packages = [ cfg.package ];
 
-            xdg.configFile."np/config.yaml".source = yamlFormat.generate "config.yaml" {
-              profiles_path = cfg.profilesPath;
-              tmux = {
-                window_count = cfg.tmux.windowCount;
-              };
-            };
+            xdg.configFile."np/config.yaml".source = yamlFormat.generate "config.yaml" (
+              {
+                profiles_path = cfg.profilesPath;
+                tmux = {
+                  window_count = cfg.tmux.windowCount;
+                };
+              }
+              // optionalAttrs (cfg.workspacePath != null) { workspace_path = cfg.workspacePath; }
+            );
           };
         };
     }
