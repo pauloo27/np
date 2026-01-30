@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/spf13/cobra"
 )
@@ -22,13 +23,7 @@ var setCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		profileExists := false
-		for _, p := range availableProfiles {
-			if p == profile {
-				profileExists = true
-				break
-			}
-		}
+		profileExists := slices.Contains(availableProfiles, profile)
 
 		if !profileExists {
 			fmt.Fprintf(os.Stderr, "profile '%s' does not exist\n", profile)
