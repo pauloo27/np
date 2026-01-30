@@ -36,9 +36,6 @@ func main() {
 	}
 
 	workspace, _ = config.LoadWorkspace(cfg)
-	if workspace == nil {
-		workspace = &config.Workspace{Projects: make(map[string]string)}
-	}
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

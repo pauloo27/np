@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	ProfilesPath  string `yaml:"profiles_path"`
-	WorkspacePath string `yaml:"workspace_path,omitempty"`
+	WorkspacePath string `yaml:"workspace_path"`
 	Tmux          struct {
 		WindowCount int `yaml:"window_count"`
 	} `yaml:"tmux"`
@@ -44,4 +44,20 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func (c *Config) GetWorkspacePath() string {
+	if c != nil && c.WorkspacePath != "" {
+		return c.WorkspacePath
+	}
+
+	stateDir := os.Getenv("XDG_STATE_HOME")
+	if stateDir == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return ""
+		}
+		stateDir = filepath.Join(homeDir, ".local", "state")
+	}
+	return filepath.Join(stateDir, "np", "workspace.yaml")
 }

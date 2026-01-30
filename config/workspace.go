@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -12,22 +13,6 @@ type Workspace struct {
 	path     string            `yaml:"-"` // configured workspace path
 }
 
-func (c *Config) GetWorkspacePath() string {
-	if c != nil && c.WorkspacePath != "" {
-		return c.WorkspacePath
-	}
-
-	stateDir := os.Getenv("XDG_STATE_HOME")
-	if stateDir == "" {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return ""
-		}
-		stateDir = filepath.Join(homeDir, ".local", "state")
-	}
-	return filepath.Join(stateDir, "np", "workspace.yaml")
-}
-
 func LoadWorkspace(cfg *Config) (*Workspace, error) {
 	workspacePath := cfg.GetWorkspacePath()
 	if workspacePath == "" {
@@ -36,6 +21,12 @@ func LoadWorkspace(cfg *Config) (*Workspace, error) {
 
 	data, err := os.ReadFile(workspacePath)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return &Workspace{
+				path:     workspacePath,
+				Projects: make(map[string]string),
+			}, nil
+		}
 		return nil, err
 	}
 
