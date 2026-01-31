@@ -159,7 +159,10 @@ func buildTmuxWindows(windowCount int, windowCommands []string) []*config.TmuxWi
 	for _, cmd := range windowCommands {
 		windows = append(windows, &config.TmuxWindow{Command: cmd})
 	}
-	windows = append(windows, make([]*config.TmuxWindow, windowCount)...)
+
+	for range windowCount {
+		windows = append(windows, &config.TmuxWindow{})
+	}
 
 	return windows
 }
