@@ -19,14 +19,14 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(runCmd)
-	rootCmd.AddCommand(profileCmd)
-	rootCmd.AddCommand(setCmd)
-	rootCmd.AddCommand(devCmd)
-	rootCmd.AddCommand(tmuxCmd)
-	rootCmd.AddCommand(shellCmd)
-	rootCmd.AddCommand(listCmd)
-	rootCmd.AddCommand(loadCmd)
+	rootCmd.AddCommand(newRunCommand())
+	rootCmd.AddCommand(newProfileCmd())
+	rootCmd.AddCommand(newSetCmd())
+	rootCmd.AddCommand(newDevCmd())
+	rootCmd.AddCommand(newTmuxCmd())
+	rootCmd.AddCommand(newShellCmd())
+	rootCmd.AddCommand(newListCmd())
+	rootCmd.AddCommand(newLoadCmd())
 }
 
 func main() {
