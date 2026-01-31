@@ -9,8 +9,13 @@ import (
 )
 
 type Workspace struct {
-	Projects map[string]string `yaml:"projects"`
-	path     string            `yaml:"-"` // configured workspace path
+	Projects map[string]*Project `yaml:"projects"`
+
+	path string `yaml:"-"` // configured workspace path
+}
+
+type Project struct {
+	Profile string `yaml:"profile"`
 }
 
 func LoadWorkspace(cfg *Config) (*Workspace, error) {
@@ -24,7 +29,7 @@ func LoadWorkspace(cfg *Config) (*Workspace, error) {
 		if errors.Is(err, os.ErrNotExist) {
 			return &Workspace{
 				path:     workspacePath,
-				Projects: make(map[string]string),
+				Projects: make(map[string]*Project),
 			}, nil
 		}
 		return nil, err
@@ -56,4 +61,8 @@ func (w *Workspace) Save() error {
 	}
 
 	return os.WriteFile(w.path, data, 0640)
+}
+
+func NewProject(profile string) *Project {
+	return &Project{Profile: profile}
 }
