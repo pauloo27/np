@@ -11,7 +11,8 @@ import (
 
 func newTmuxCmd() *cobra.Command {
 	var (
-		windowCountFlag int
+		windowCountFlag    int
+		windowsCommandFlag []string
 	)
 
 	tmuxCmd := &cobra.Command{
@@ -28,8 +29,9 @@ func newTmuxCmd() *cobra.Command {
 			}
 
 			windowCount := windowCountFlag
-			if windowCount <= 0 {
-				windowCount = 1
+			if windowCount < 0 {
+				fmt.Fprintf(os.Stderr, "tmux window count cannot be negative \n")
+				os.Exit(1)
 			}
 
 			var profileStartCmd string
@@ -58,11 +60,34 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			for i := 1; i < windowCount; i++ {
-				tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd, profileStartCmd}
-				if err := runCommand(tmuxNewWindow...); err != nil {
-					fmt.Fprintf(os.Stderr, "error creating window %d: %v\n", i+1, err)
+			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
+
+			for i, window := range windows {
+				// First window already created by new-session, create the rest
+				if i > 0 {
+					tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd, profileStartCmd}
+					if err := runCommand(tmuxNewWindow...); err != nil {
+						fmt.Fprintf(os.Stderr, "error creating additional window: %v\n", err)
+					}
 				}
+
+				// Send command to window if it has one
+				if window.Command != "" {
+					// TODO: not all tmux start at 1, allow to config?
+					windowIndex := i + 1
+					target := fmt.Sprintf("%s:%d", sessionName, windowIndex)
+					tmuxSendKeys := []string{"tmux", "send-keys", "-t", target, window.Command, "Enter"}
+					if err := runCommand(tmuxSendKeys...); err != nil {
+						fmt.Fprintf(os.Stderr, "error sending command to window %d: %v\n", windowIndex, err)
+					}
+				}
+			}
+
+			// TODO: not all tmux start at 1, allow to config?
+			windowSeletion := []string{"tmux", "select-window", "-t", "1"}
+			if err := runCommand(windowSeletion...); err != nil {
+				fmt.Fprintf(os.Stderr, "error creating tmux session: %v\n", err)
+				os.Exit(1)
 			}
 
 			tmuxAttach := []string{"tmux", "attach-session", "-t", sessionName}
@@ -74,6 +99,7 @@ func newTmuxCmd() *cobra.Command {
 	}
 
 	tmuxCmd.Flags().IntVarP(&windowCountFlag, "count", "c", 0, "Number of tmux windows to create")
+	tmuxCmd.Flags().StringArrayVarP(&windowsCommandFlag, "window", "w", []string{}, "Add a window with a command")
 
 	return tmuxCmd
 }

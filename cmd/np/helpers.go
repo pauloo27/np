@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
 )
 
@@ -144,4 +145,21 @@ func resolveProfile(args []string, nixDevProfilesPath string) (profile string, u
 	fmt.Fprintf(os.Stderr, "use 'np set <profile>' to set a profile for this directory\n")
 	listAvailableProfiles(nixDevProfilesPath)
 	return "", false, false
+}
+
+func buildTmuxWindows(windowCount int, windowCommands []string) []*config.TmuxWindow {
+	totalCount := windowCount + len(windowCommands)
+	if totalCount == 0 {
+		windowCount = 1
+		totalCount = 1
+	}
+
+	windows := make([]*config.TmuxWindow, 0, totalCount)
+
+	for _, cmd := range windowCommands {
+		windows = append(windows, &config.TmuxWindow{Command: cmd})
+	}
+	windows = append(windows, make([]*config.TmuxWindow, windowCount)...)
+
+	return windows
 }

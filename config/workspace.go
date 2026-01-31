@@ -16,6 +16,15 @@ type Workspace struct {
 
 type Project struct {
 	Profile string `yaml:"profile"`
+	Tmux    *Tmux  `yaml:"tmux"`
+}
+
+type Tmux struct {
+	Windows []*TmuxWindow `yaml:"windows"`
+}
+
+type TmuxWindow struct {
+	Command string `yaml:"command"`
 }
 
 func LoadWorkspace(cfg *Config) (*Workspace, error) {
@@ -63,6 +72,6 @@ func (w *Workspace) Save() error {
 	return os.WriteFile(w.path, data, 0640)
 }
 
-func NewProject(profile string) *Project {
-	return &Project{Profile: profile}
+func NewProject(profile string, windows []*TmuxWindow) *Project {
+	return &Project{Profile: profile, Tmux: &Tmux{Windows: windows}}
 }

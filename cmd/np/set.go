@@ -10,13 +10,23 @@ import (
 )
 
 func newSetCmd() *cobra.Command {
-	return &cobra.Command{
+	var (
+		windowCountFlag    int
+		windowsCommandFlag []string
+	)
+
+	setCmd := &cobra.Command{
 		Use:               "set [profile]",
 		Short:             "Set the profile for the current directory",
 		Args:              cobra.ExactArgs(1),
-		ValidArgsFunction: profileCompletion(false),
+		ValidArgsFunction: profileCompletion(true),
 		Run: func(cmd *cobra.Command, args []string) {
 			profile := args[0]
+
+			if windowCountFlag < 0 {
+				fmt.Fprintf(os.Stderr, "tmux window count cannot be negative \n")
+				os.Exit(1)
+			}
 
 			profilesPath := getProfilesPath()
 			availableProfiles, err := getAvailableProfiles(profilesPath)
@@ -27,7 +37,7 @@ func newSetCmd() *cobra.Command {
 
 			profileExists := slices.Contains(availableProfiles, profile)
 
-			if !profileExists {
+			if !profileExists && profile != "local" {
 				fmt.Fprintf(os.Stderr, "profile '%s' does not exist\n", profile)
 				listAvailableProfiles(profilesPath)
 				os.Exit(1)
@@ -39,7 +49,9 @@ func newSetCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			project := config.NewProject(profile)
+			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
+
+			project := config.NewProject(profile, windows)
 
 			workspace.Projects[cwd] = project
 
@@ -51,4 +63,9 @@ func newSetCmd() *cobra.Command {
 			fmt.Printf("Set profile '%s' for %s\n", profile, cwd)
 		},
 	}
+
+	setCmd.Flags().IntVarP(&windowCountFlag, "count", "c", 0, "Number of tmux windows for the project")
+	setCmd.Flags().StringArrayVarP(&windowsCommandFlag, "window", "w", []string{}, "Add a window with a command")
+
+	return setCmd
 }
