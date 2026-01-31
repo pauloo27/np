@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	ProfilesPath  string `yaml:"profiles_path"`
-	WorkspacePath string `yaml:"workspace_path"`
+	ProfilesPath        string `yaml:"profiles_path"`
+	WorkspacePath       string `yaml:"workspace_path"`
+	TmuxBaseWindowIndex int    `yaml:"tmux_base_window_index"`
 }
 
 func GetConfigPath() string {

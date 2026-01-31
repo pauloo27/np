@@ -49,12 +49,10 @@
               description = "Path to the workspace file. Defaults to XDG_STATE_HOME/np/workspace.yaml if not set.";
             };
 
-            tmux = {
-              windowCount = mkOption {
-                type = types.int;
-                default = 1;
-                description = "Default number of tmux windows to create.";
-              };
+            tmuxBaseWindowIndex = mkOption {
+              type = types.int;
+              default = 1;
+              description = "Base window index for tmux (usually 0 or 1).";
             };
           };
 
@@ -64,9 +62,7 @@
             xdg.configFile."np/config.yaml".source = yamlFormat.generate "config.yaml" (
               {
                 profiles_path = cfg.profilesPath;
-                tmux = {
-                  window_count = cfg.tmux.windowCount;
-                };
+                tmux_base_window_index = cfg.tmuxBaseWindowIndex;
               }
               // optionalAttrs (cfg.workspacePath != null) { workspace_path = cfg.workspacePath; }
             );

@@ -73,8 +73,7 @@ func newTmuxCmd() *cobra.Command {
 
 				// Send command to window if it has one
 				if window.Command != "" {
-					// TODO: not all tmux start at 1, allow to config?
-					windowIndex := i + 1
+					windowIndex := cfg.TmuxBaseWindowIndex + i
 					target := fmt.Sprintf("%s:%d", sessionName, windowIndex)
 					tmuxSendKeys := []string{"tmux", "send-keys", "-t", target, window.Command, "Enter"}
 					if err := runCommand(tmuxSendKeys...); err != nil {
@@ -83,8 +82,7 @@ func newTmuxCmd() *cobra.Command {
 				}
 			}
 
-			// TODO: not all tmux start at 1, allow to config?
-			windowSeletion := []string{"tmux", "select-window", "-t", "1"}
+			windowSeletion := []string{"tmux", "select-window", "-t", fmt.Sprintf("%d", cfg.TmuxBaseWindowIndex)}
 			if err := runCommand(windowSeletion...); err != nil {
 				fmt.Fprintf(os.Stderr, "error creating tmux session: %v\n", err)
 				os.Exit(1)
