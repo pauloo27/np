@@ -28,10 +28,7 @@ var tmuxCmd = &cobra.Command{
 
 		windowCount := windowCountFlag
 		if windowCount <= 0 {
-			windowCount = cfg.Tmux.WindowCount
-			if windowCount <= 0 {
-				windowCount = 1
-			}
+			windowCount = 1
 		}
 
 		var profileStartCmd string

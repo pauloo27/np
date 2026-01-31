@@ -10,9 +10,6 @@ import (
 type Config struct {
 	ProfilesPath  string `yaml:"profiles_path"`
 	WorkspacePath string `yaml:"workspace_path"`
-	Tmux          struct {
-		WindowCount int `yaml:"window_count"`
-	} `yaml:"tmux"`
 }
 
 func GetConfigPath() string {
