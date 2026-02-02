@@ -66,12 +66,7 @@ func determineProfileName() (string, bool) {
 		return project.Profile, true
 	}
 
-	absPath, err := filepath.EvalSymlinks(cwd)
-	if err == nil {
-		if project, exists := workspace.Projects[absPath]; exists {
-			return project.Profile, true
-		}
-	}
+	// TODO: recursive check?
 
 	return "", false
 }
