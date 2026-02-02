@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -33,6 +34,9 @@ func LoadConfig() (*Config, error) {
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return &Config{}, nil
+		}
 		return nil, err
 	}
 

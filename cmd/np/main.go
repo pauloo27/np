@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"code.db.cafe/pauloo27/np/config"
@@ -30,12 +31,18 @@ func init() {
 }
 
 func main() {
-	cfg, _ = config.LoadConfig()
-	if cfg == nil {
-		cfg = &config.Config{}
+	var err error
+	cfg, err = config.LoadConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "invalid config: %v\n", err)
+		os.Exit(1)
 	}
 
-	workspace, _ = config.LoadWorkspace(cfg)
+	workspace, err = config.LoadWorkspace(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "invalid workspace: %v\n", err)
+		os.Exit(1)
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
