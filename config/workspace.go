@@ -49,6 +49,10 @@ func LoadWorkspace(cfg *Config) (*Workspace, error) {
 		return nil, err
 	}
 
+	if workspace.Projects == nil {
+		workspace.Projects = make(map[string]*Project)
+	}
+
 	workspace.path = workspacePath
 	return &workspace, nil
 }
