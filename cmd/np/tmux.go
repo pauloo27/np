@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
 )
 
@@ -28,12 +29,6 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			windowCount := windowCountFlag
-			if windowCount < 0 {
-				fmt.Fprintf(os.Stderr, "tmux window count cannot be negative \n")
-				os.Exit(1)
-			}
-
 			var profileStartCmd string
 			if useLocalFlake {
 				profileStartCmd = fmt.Sprintf("%s profile local", os.Args[0])
@@ -41,7 +36,12 @@ func newTmuxCmd() *cobra.Command {
 				profileStartCmd = fmt.Sprintf("%s profile %s", os.Args[0], profile)
 			}
 
-			cwd, _ := os.Getwd()
+			cwd, err := os.Getwd()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error getting current work directory: %v", err)
+				os.Exit(1)
+			}
+
 			sessionName := filepath.Base(cwd)
 
 			checkSession := exec.Command("tmux", "has-session", "-t", sessionName)
@@ -60,7 +60,22 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
+			project := workspace.Projects[cwd]
+			var windows []*config.TmuxWindow
+
+			hasCommandFlags := len(windowsCommandFlag) > 0 || windowCountFlag > 0
+
+			if !hasCommandFlags {
+				if project != nil && project.Tmux != nil && len(project.Tmux.Windows) > 0 {
+					windows = project.Tmux.Windows
+				} else {
+					windowCountFlag = 1
+				}
+			}
+
+			if len(windows) == 0 {
+				windows = buildTmuxWindows(windowCountFlag, windowsCommandFlag)
+			}
 
 			for i, window := range windows {
 				// First window already created by new-session, create the rest
