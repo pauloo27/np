@@ -44,9 +44,9 @@ func newTmuxCmd() *cobra.Command {
 
 			sessionName := filepath.Base(cwd)
 
-			checkSession := exec.Command("tmux", "has-session", "-t", sessionName)
+			checkSession := exec.Command("tmux", "has-session", "-t", "="+sessionName)
 			if checkSession.Run() == nil {
-				tmuxAttach := []string{"tmux", "attach-session", "-t", sessionName}
+				tmuxAttach := []string{"tmux", "attach-session", "-t", "=" + sessionName}
 				if err := runCommand(tmuxAttach...); err != nil {
 					fmt.Fprintf(os.Stderr, "error attaching to tmux session: %v\n", err)
 					os.Exit(1)
