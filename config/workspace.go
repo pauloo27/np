@@ -20,7 +20,8 @@ type Project struct {
 }
 
 type Tmux struct {
-	Windows []*TmuxWindow `yaml:"windows"`
+	Windows     []*TmuxWindow `yaml:"windows"`
+	SessionName string        `yaml:"session_name"`
 }
 
 type TmuxWindow struct {
@@ -76,6 +77,6 @@ func (w *Workspace) Save() error {
 	return os.WriteFile(w.path, data, 0640)
 }
 
-func NewProject(profile string, windows []*TmuxWindow) *Project {
-	return &Project{Profile: profile, Tmux: &Tmux{Windows: windows}}
+func NewProject(profile string, windows []*TmuxWindow, sessionName string) *Project {
+	return &Project{Profile: profile, Tmux: &Tmux{Windows: windows, SessionName: sessionName}}
 }

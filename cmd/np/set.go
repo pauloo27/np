@@ -13,6 +13,7 @@ func newSetCmd() *cobra.Command {
 	var (
 		windowCountFlag    int
 		windowsCommandFlag []string
+		sessionName        string
 	)
 
 	setCmd := &cobra.Command{
@@ -51,7 +52,7 @@ func newSetCmd() *cobra.Command {
 
 			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
 
-			project := config.NewProject(profile, windows)
+			project := config.NewProject(profile, windows, sessionName)
 
 			workspace.Projects[cwd] = project
 
@@ -66,6 +67,7 @@ func newSetCmd() *cobra.Command {
 
 	setCmd.Flags().IntVarP(&windowCountFlag, "count", "c", 0, "Number of tmux windows for the project")
 	setCmd.Flags().StringArrayVarP(&windowsCommandFlag, "window", "w", []string{}, "Add a window with a command")
+	setCmd.Flags().StringVarP(&sessionName, "name", "n", "", "Set tmux session name")
 
 	return setCmd
 }

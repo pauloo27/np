@@ -42,7 +42,12 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			project := workspace.Projects[cwd]
+
 			sessionName := filepath.Base(cwd)
+			if project != nil && project.Tmux.SessionName != "" {
+				sessionName = project.Tmux.SessionName
+			}
 
 			checkSession := exec.Command("tmux", "has-session", "-t", "="+sessionName)
 			if checkSession.Run() == nil {
@@ -60,7 +65,6 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			project := workspace.Projects[cwd]
 			var windows []*config.TmuxWindow
 
 			hasCommandFlags := len(windowsCommandFlag) > 0 || windowCountFlag > 0
