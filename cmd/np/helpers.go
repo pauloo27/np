@@ -110,6 +110,17 @@ func getShell() string {
 	return shell
 }
 
+func resolveVariation() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	if project, exists := workspace.Projects[cwd]; exists {
+		return project.Variation
+	}
+	return ""
+}
+
 func resolveProfile(args []string, nixDevProfilesPath string) (profile string, useLocalFlake bool, ok bool) {
 	if len(args) > 0 {
 		profile = args[0]

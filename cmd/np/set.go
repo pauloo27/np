@@ -14,6 +14,7 @@ func newSetCmd() *cobra.Command {
 		windowCountFlag    int
 		windowsCommandFlag []string
 		sessionName        string
+		variation          string
 	)
 
 	setCmd := &cobra.Command{
@@ -52,7 +53,7 @@ func newSetCmd() *cobra.Command {
 
 			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
 
-			project := config.NewProject(profile, windows, sessionName)
+			project := config.NewProject(profile, variation, windows, sessionName)
 
 			workspace.Projects[cwd] = project
 
@@ -68,6 +69,7 @@ func newSetCmd() *cobra.Command {
 	setCmd.Flags().IntVarP(&windowCountFlag, "count", "c", 0, "Number of tmux windows for the project")
 	setCmd.Flags().StringArrayVarP(&windowsCommandFlag, "window", "w", []string{}, "Add a window with a command")
 	setCmd.Flags().StringVarP(&sessionName, "name", "n", "", "Set tmux session name")
+	setCmd.Flags().StringVarP(&variation, "variation", "v", "", "Set nix develop variation (e.g. node22)")
 
 	return setCmd
 }

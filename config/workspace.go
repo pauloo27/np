@@ -15,8 +15,9 @@ type Workspace struct {
 }
 
 type Project struct {
-	Profile string `yaml:"profile"`
-	Tmux    *Tmux  `yaml:"tmux"`
+	Profile   string `yaml:"profile"`
+	Variation string `yaml:"variation,omitempty"`
+	Tmux      *Tmux  `yaml:"tmux"`
 }
 
 type Tmux struct {
@@ -77,6 +78,6 @@ func (w *Workspace) Save() error {
 	return os.WriteFile(w.path, data, 0640)
 }
 
-func NewProject(profile string, windows []*TmuxWindow, sessionName string) *Project {
-	return &Project{Profile: profile, Tmux: &Tmux{Windows: windows, SessionName: sessionName}}
+func NewProject(profile string, variation string, windows []*TmuxWindow, sessionName string) *Project {
+	return &Project{Profile: profile, Variation: variation, Tmux: &Tmux{Windows: windows, SessionName: sessionName}}
 }

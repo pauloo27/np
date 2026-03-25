@@ -10,7 +10,9 @@ import (
 )
 
 func newProfileCmd() *cobra.Command {
-	return &cobra.Command{
+	var variation string
+
+	cmd := &cobra.Command{
 		Use:               "profile [profile]",
 		Short:             "Run nix develop shell with profile",
 		Args:              cobra.MaximumNArgs(1),
@@ -25,11 +27,19 @@ func newProfileCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			if variation == "" {
+				variation = resolveVariation()
+			}
+
 			var nixArgs []string
 			var env []string
 
 			if useLocalFlake {
-				nixArgs = []string{"nix", "develop", "-c", shell}
+				flakeRef := "."
+				if variation != "" {
+					flakeRef = ".#" + variation
+				}
+				nixArgs = []string{"nix", "develop", flakeRef, "-c", shell}
 				env = append(os.Environ(), "USING_NIX_DEV=local")
 			} else {
 				profilePath := filepath.Join(profilesPath, profile)
@@ -40,7 +50,11 @@ func newProfileCmd() *cobra.Command {
 					os.Exit(1)
 				}
 
-				nixArgs = []string{"nix", "develop", profilePath, "-c", shell}
+				flakeRef := profilePath
+				if variation != "" {
+					flakeRef = profilePath + "#" + variation
+				}
+				nixArgs = []string{"nix", "develop", flakeRef, "-c", shell}
 				env = append(os.Environ(), fmt.Sprintf("USING_NIX_DEV=%s", profile))
 			}
 
@@ -55,4 +69,8 @@ func newProfileCmd() *cobra.Command {
 			}
 		},
 	}
+
+	cmd.Flags().StringVarP(&variation, "variation", "v", "", "Nix develop variation (e.g. node22)")
+
+	return cmd
 }

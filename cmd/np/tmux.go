@@ -29,12 +29,18 @@ func newTmuxCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			variation := resolveVariation()
+
 			var profileStartCmd string
 			if profile != "none" {
+				variationFlag := ""
+				if variation != "" {
+					variationFlag = fmt.Sprintf(" -v %s", variation)
+				}
 				if useLocalFlake {
-					profileStartCmd = fmt.Sprintf("%s profile local", os.Args[0])
+					profileStartCmd = fmt.Sprintf("%s profile local%s", os.Args[0], variationFlag)
 				} else {
-					profileStartCmd = fmt.Sprintf("%s profile %s", os.Args[0], profile)
+					profileStartCmd = fmt.Sprintf("%s profile %s%s", os.Args[0], profile, variationFlag)
 				}
 			}
 
