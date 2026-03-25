@@ -30,10 +30,12 @@ func newTmuxCmd() *cobra.Command {
 			}
 
 			var profileStartCmd string
-			if useLocalFlake {
-				profileStartCmd = fmt.Sprintf("%s profile local", os.Args[0])
-			} else {
-				profileStartCmd = fmt.Sprintf("%s profile %s", os.Args[0], profile)
+			if profile != "none" {
+				if useLocalFlake {
+					profileStartCmd = fmt.Sprintf("%s profile local", os.Args[0])
+				} else {
+					profileStartCmd = fmt.Sprintf("%s profile %s", os.Args[0], profile)
+				}
 			}
 
 			cwd, err := os.Getwd()

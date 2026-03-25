@@ -38,7 +38,7 @@ func newSetCmd() *cobra.Command {
 
 			profileExists := slices.Contains(availableProfiles, profile)
 
-			if !profileExists && profile != "local" {
+			if !profileExists && profile != "local" && profile != "none" {
 				fmt.Fprintf(os.Stderr, "profile '%s' does not exist\n", profile)
 				listAvailableProfiles(profilesPath)
 				os.Exit(1)

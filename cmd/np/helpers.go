@@ -35,7 +35,7 @@ func profileCompletion(includeLocal bool) func(*cobra.Command, []string, string)
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 		if includeLocal {
-			profiles = append([]string{"local"}, profiles...)
+			profiles = append([]string{"none", "local"}, profiles...)
 		}
 		return profiles, cobra.ShellCompDirectiveNoFileComp
 	}
@@ -113,6 +113,9 @@ func getShell() string {
 func resolveProfile(args []string, nixDevProfilesPath string) (profile string, useLocalFlake bool, ok bool) {
 	if len(args) > 0 {
 		profile = args[0]
+		if profile == "none" {
+			return profile, false, true
+		}
 		if profile == "local" {
 			return profile, true, true
 		}
@@ -121,6 +124,9 @@ func resolveProfile(args []string, nixDevProfilesPath string) (profile string, u
 
 	if envProfile := os.Getenv("USING_NIX_DEV"); envProfile != "" {
 		profile = envProfile
+		if profile == "none" {
+			return profile, false, true
+		}
 		if profile == "local" {
 			return profile, true, true
 		}
@@ -130,6 +136,9 @@ func resolveProfile(args []string, nixDevProfilesPath string) (profile string, u
 	detectedProfile, found := determineProfileName()
 	if found {
 		profile = detectedProfile
+		if profile == "none" {
+			return profile, false, true
+		}
 		if profile == "local" {
 			return profile, true, true
 		}
