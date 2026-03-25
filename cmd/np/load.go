@@ -17,7 +17,7 @@ func newLoadCmd() *cobra.Command {
 			shouldUse := os.Getenv("SHOULD_USE_NIX_DEV")
 			currentlyUsing := os.Getenv("USING_NIX_DEV")
 
-			if shouldUse == "" || currentlyUsing != "" {
+			if shouldUse == "" || shouldUse == "none" || currentlyUsing != "" {
 				return
 			}
 
@@ -29,7 +29,7 @@ func newLoadCmd() *cobra.Command {
 			var err error
 
 			// that should match "./np", "/bin/np" etc
-			if strings.Contains(npPath, "/") {
+			if strings.Contains(os.Args[0], "/") {
 				npPath = os.Args[0]
 			} else {
 				npPath, err = getBinPath("np")
