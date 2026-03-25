@@ -67,7 +67,10 @@ func newTmuxCmd() *cobra.Command {
 				return
 			}
 
-			tmuxNewSession := []string{"tmux", "new-session", "-e", "SHOULD_USE_NIX_DEV=" + profile, "-d", "-s", sessionName, "-c", cwd, profileStartCmd}
+			tmuxNewSession := []string{"tmux", "new-session", "-e", "SHOULD_USE_NIX_DEV=" + profile, "-d", "-s", sessionName, "-c", cwd}
+			if profileStartCmd != "" {
+				tmuxNewSession = append(tmuxNewSession, profileStartCmd)
+			}
 			if err := runCommand(tmuxNewSession...); err != nil {
 				fmt.Fprintf(os.Stderr, "error creating tmux session: %v\n", err)
 				os.Exit(1)
@@ -92,7 +95,10 @@ func newTmuxCmd() *cobra.Command {
 			for i, window := range windows {
 				// First window already created by new-session, create the rest
 				if i > 0 {
-					tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd, profileStartCmd}
+					tmuxNewWindow := []string{"tmux", "new-window", "-t", sessionName, "-c", cwd}
+					if profileStartCmd != "" {
+						tmuxNewWindow = append(tmuxNewWindow, profileStartCmd)
+					}
 					if err := runCommand(tmuxNewWindow...); err != nil {
 						fmt.Fprintf(os.Stderr, "error creating additional window: %v\n", err)
 					}
