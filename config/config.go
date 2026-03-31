@@ -8,10 +8,16 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
+type Alias struct {
+	Package string `yaml:"package"`
+	Command string `yaml:"command"`
+}
+
 type Config struct {
-	ProfilesPath        string `yaml:"profiles_path"`
-	WorkspacePath       string `yaml:"workspace_path"`
-	TmuxBaseWindowIndex int    `yaml:"tmux_base_window_index"`
+	ProfilesPath        string            `yaml:"profiles_path"`
+	WorkspacePath       string            `yaml:"workspace_path"`
+	TmuxBaseWindowIndex int               `yaml:"tmux_base_window_index"`
+	Aliases             map[string]*Alias `yaml:"aliases,omitempty"`
 }
 
 func GetConfigPath() string {
@@ -43,6 +49,10 @@ func LoadConfig() (*Config, error) {
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
+	}
+
+	if config.Aliases == nil {
+		config.Aliases = make(map[string]*Alias)
 	}
 
 	return &config, nil

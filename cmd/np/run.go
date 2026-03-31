@@ -16,11 +16,18 @@ func newRunCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			pkg := args[0]
 
-			nixArgs := []string{"nix", "run", fmt.Sprintf("nixpkgs#%s", pkg)}
+			var nixArgs []string
 
-			if len(args) > 1 {
-				nixArgs = append(nixArgs, "--")
+			if alias, ok := cfg.Aliases[pkg]; ok {
+				fmt.Fprintf(os.Stderr, "Resolved alias %s -> %s (%s)\n", pkg, alias.Package, alias.Command)
+				nixArgs = []string{"nix", "shell", fmt.Sprintf("nixpkgs#%s", alias.Package), "--command", alias.Command}
 				nixArgs = append(nixArgs, args[1:]...)
+			} else {
+				nixArgs = []string{"nix", "run", fmt.Sprintf("nixpkgs#%s", pkg)}
+				if len(args) > 1 {
+					nixArgs = append(nixArgs, "--")
+					nixArgs = append(nixArgs, args[1:]...)
+				}
 			}
 
 			nixPath, err := getBinPath("nix")

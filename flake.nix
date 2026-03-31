@@ -54,6 +54,28 @@
               default = 1;
               description = "Base window index for tmux (usually 0 or 1).";
             };
+
+            aliases = mkOption {
+              type = types.attrsOf (types.submodule {
+                options = {
+                  package = mkOption {
+                    type = types.str;
+                    description = "The nixpkgs package to use.";
+                  };
+                  command = mkOption {
+                    type = types.str;
+                    description = "The command to run from the package.";
+                  };
+                };
+              });
+              default = { };
+              description = "Aliases mapping short names to a package and specific command to run.";
+              example = literalExpression ''
+                {
+                  psql = { package = "postgresql"; command = "psql"; };
+                }
+              '';
+            };
           };
 
           config = mkIf cfg.enable {
@@ -65,6 +87,7 @@
                 tmux_base_window_index = cfg.tmuxBaseWindowIndex;
               }
               // optionalAttrs (cfg.workspacePath != null) { workspace_path = cfg.workspacePath; }
+              // optionalAttrs (cfg.aliases != { }) { aliases = cfg.aliases; }
             );
           };
         };
