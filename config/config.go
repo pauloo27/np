@@ -41,7 +41,7 @@ func LoadConfig() (*Config, error) {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return &Config{}, nil
+			return &Config{Aliases: make(map[string]*Alias)}, nil
 		}
 		return nil, err
 	}
