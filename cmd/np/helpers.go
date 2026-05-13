@@ -53,10 +53,6 @@ func listAvailableProfiles(profilesPath string) {
 }
 
 func determineProfileName() (string, bool) {
-	if _, err := os.Stat("flake.nix"); err == nil {
-		return "local", true
-	}
-
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", false
@@ -64,6 +60,10 @@ func determineProfileName() (string, bool) {
 
 	if project, exists := workspace.Projects[cwd]; exists {
 		return project.Profile, true
+	}
+
+	if _, err := os.Stat("flake.nix"); err == nil {
+		return "local", true
 	}
 
 	// TODO: recursive check?
