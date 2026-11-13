@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
@@ -160,6 +161,22 @@ func resolveProfile(args []string, nixDevProfilesPath string) (profile string, u
 	fmt.Fprintf(os.Stderr, "use 'np set <profile>' to set a profile for this directory\n")
 	listAvailableProfiles(nixDevProfilesPath)
 	return "", false, false
+}
+
+func parseMetaPairs(pairs []string) (map[string]string, error) {
+	if len(pairs) == 0 {
+		return nil, nil
+	}
+
+	meta := make(map[string]string, len(pairs))
+	for _, pair := range pairs {
+		key, value, found := strings.Cut(pair, "=")
+		if !found || key == "" {
+			return nil, fmt.Errorf("invalid metadata '%s', expected key=value", pair)
+		}
+		meta[key] = value
+	}
+	return meta, nil
 }
 
 func buildTmuxWindows(windowCount int, windowCommands []string) []*config.TmuxWindow {

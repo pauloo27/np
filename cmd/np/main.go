@@ -24,6 +24,7 @@ func init() {
 	rootCmd.AddCommand(newProfileCmd())
 	rootCmd.AddCommand(newSetCmd())
 	rootCmd.AddCommand(newUnsetCmd())
+	rootCmd.AddCommand(newMetaCmd())
 	rootCmd.AddCommand(newDevCmd())
 	rootCmd.AddCommand(newTmuxCmd())
 	rootCmd.AddCommand(newShellCmd())

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 
 	"code.db.cafe/pauloo27/np/config"
 	"github.com/spf13/cobra"
@@ -15,6 +16,7 @@ func newSetCmd() *cobra.Command {
 		windowsCommandFlag []string
 		sessionName        string
 		variation          string
+		metaFlag           []string
 	)
 
 	setCmd := &cobra.Command{
@@ -27,6 +29,12 @@ func newSetCmd() *cobra.Command {
 
 			if windowCountFlag < 0 {
 				fmt.Fprintf(os.Stderr, "tmux window count cannot be negative \n")
+				os.Exit(1)
+			}
+
+			metadata, err := parseMetaPairs(metaFlag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
 
@@ -54,6 +62,17 @@ func newSetCmd() *cobra.Command {
 			windows := buildTmuxWindows(windowCountFlag, windowsCommandFlag)
 
 			project := config.NewProject(profile, variation, windows, sessionName)
+			project.Metadata = metadata
+
+			var droppedKeys []string
+			if previous, ok := workspace.Projects[cwd]; ok {
+				for key := range previous.Metadata {
+					if _, kept := metadata[key]; !kept {
+						droppedKeys = append(droppedKeys, key)
+					}
+				}
+				slices.Sort(droppedKeys)
+			}
 
 			workspace.Projects[cwd] = project
 
@@ -63,6 +82,10 @@ func newSetCmd() *cobra.Command {
 			}
 
 			fmt.Printf("Set profile '%s' for %s\n", profile, cwd)
+
+			if len(droppedKeys) > 0 {
+				fmt.Fprintf(os.Stderr, "metadata cleared: %s (re-add with 'np meta set key=value')\n", strings.Join(droppedKeys, ", "))
+			}
 		},
 	}
 
@@ -70,6 +93,7 @@ func newSetCmd() *cobra.Command {
 	setCmd.Flags().StringArrayVarP(&windowsCommandFlag, "window", "w", []string{}, "Add a window with a command")
 	setCmd.Flags().StringVarP(&sessionName, "name", "n", "", "Set tmux session name")
 	setCmd.Flags().StringVarP(&variation, "variation", "v", "", "Set nix develop variation (e.g. node22)")
+	setCmd.Flags().StringArrayVarP(&metaFlag, "meta", "m", []string{}, "Set a metadata key=value pair")
 
 	return setCmd
 }

@@ -16,8 +16,9 @@ type Workspace struct {
 
 type Project struct {
 	Profile   string `yaml:"profile"`
-	Variation string `yaml:"variation,omitempty"`
-	Tmux      *Tmux  `yaml:"tmux"`
+	Variation string            `yaml:"variation,omitempty"`
+	Metadata  map[string]string `yaml:"metadata,omitempty"`
+	Tmux      *Tmux             `yaml:"tmux"`
 }
 
 type Tmux struct {
